@@ -22,12 +22,12 @@ randomTree = (depth) ->
   createTree = (depthLeft) =>
     head =
       name: "Test String " + index++
-      children: null
+      _children: null
     unless depthLeft == 1
       if randomInt(2) >= 1
-        head.children = []
+        head._children = []
         for i in [0..randomInt(11)]
-          head.children[i] = createTree(depthLeft-1)
+          head._children[i] = createTree(depthLeft-1)
 
     head
   createTree(depth)
