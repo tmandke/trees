@@ -1,0 +1,7 @@
+node_modules/
+dist/
+src/js/
+src/css/
+.idea
+.DS_Store
+
