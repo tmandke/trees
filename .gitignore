@@ -4,4 +4,4 @@ src/js/
 src/css/
 .idea
 .DS_Store
-
+bin/
