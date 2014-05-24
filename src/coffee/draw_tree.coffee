@@ -20,7 +20,7 @@ class window.MyTree
     )
     @diagonal = (d, i) ->
       return "M" + d.source.x + "," + d.source.y + "V" + (d.source.y + (d.target.y - d.source.y)/2) + "H" + d.target.x + "V" + d.target.y
-
+    $("svg").html("")
     @vis = d3.select("svg").attr("width", @w + m[1] + m[3]).attr("height", @h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + (@w/2 + m[1]) + "," + m[0] + ")")
     @root.x0 = 0
     @root.y0 = 0
@@ -54,18 +54,20 @@ class window.MyTree
           else
             maxX = node.x - (@nodeWidth + @nodeSeparation)
 
-      nodes.forEach desired_position
       nodes = nodes.sort (a,b) ->
         a.x - b.x
-      adjust_min()
       nodes.forEach desired_position
       nodes = nodes.sort (a,b) ->
-        b.x - a.x
+        if a.parent == b.parent
+          a.x - b.x
+        else
+          a.parent.x - b.parent.x
 
+
+      adjust_min()
+      nodes = nodes.reverse()
       adjust_max()
-      nodes.forEach desired_position
-      nodes = nodes.sort (a,b) ->
-        a.x - b.x
+      nodes = nodes.reverse()
       adjust_min()
 
     nodeLayers = []

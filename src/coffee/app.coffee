@@ -34,4 +34,10 @@ randomTree = (depth) ->
 
 
 $ ->
-  window.treee = new MyTree(randomTree(4))
+  window.current_tree = randomTree(4)
+  $("#treejson").val(JSON.stringify(current_tree, null, 2))
+  $("#apply").on("click", () ->
+    window.current_tree = jQuery.parseJSON( $("#treejson").val())
+    window.treee = new MyTree(current_tree)
+  )
+  window.treee = new MyTree(current_tree)
