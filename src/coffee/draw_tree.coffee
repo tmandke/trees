@@ -7,22 +7,75 @@ class window.MyTree
       20
       120
     ]
-    w = 1280 - m[1] - m[3]
-    h = 800 - m[0] - m[2]
+    @w = 1280 - m[1] - m[3]
+    @h = 800 - m[0] - m[2]
     @i = 0
-
+    @nodeWidth = 100
+    @nodeSeparation = 10
+    @nodeSeparationRel = (@nodeSeparation + @nodeWidth) / @nodeWidth
     @tree = d3.layout.tree().nodeSize([
-      100, 20
-    ]).separation(->
-      1.1
+      @nodeWidth, 20
+    ]).separation(=>
+      @nodeSeparationRel
     )
     @diagonal = (d, i) ->
       return "M" + d.source.x + "," + d.source.y + "V" + (d.source.y + (d.target.y - d.source.y)/2) + "H" + d.target.x + "V" + d.target.y
 
-    @vis = d3.select("svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + (w/2 + m[1]) + "," + m[0] + ")")
+    @vis = d3.select("svg").attr("width", @w + m[1] + m[3]).attr("height", @h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + (@w/2 + m[1]) + "," + m[0] + ")")
     @root.x0 = 0
     @root.y0 = 0
     @update(@root)
+
+  adjustTree: (nodes) =>
+    desired_position = (node) =>
+      if node.children
+        node.x = 0
+        node.children.forEach (child) =>
+          node.x += child.x
+        node.x /= node.children.length
+
+
+    possible_position = (nodes) =>
+      adjust_min = =>
+        minX = -@w/2
+        nodes.forEach (node) =>
+          if node.x < minX
+            node.x = minX
+            minX += @nodeWidth + @nodeSeparation
+          else
+            minX = node.x + @nodeWidth + @nodeSeparation
+
+      adjust_max = =>
+        maxX = @w/2 - @nodeWidth
+        nodes.forEach (node) =>
+          if node.x > maxX
+            node.x = maxX
+            maxX -= (@nodeWidth + @nodeSeparation)
+          else
+            maxX = node.x - (@nodeWidth + @nodeSeparation)
+
+      nodes.forEach desired_position
+      nodes = nodes.sort (a,b) ->
+        a.x - b.x
+      adjust_min()
+      nodes.forEach desired_position
+      nodes = nodes.sort (a,b) ->
+        b.x - a.x
+
+      adjust_max()
+      nodes.forEach desired_position
+      nodes = nodes.sort (a,b) ->
+        a.x - b.x
+      adjust_min()
+
+    nodeLayers = []
+    nodes.forEach (d) =>
+      nodeLayers[d.depth] ?= []
+      nodeLayers[d.depth].push(d)
+    nodeLayers.reverse().forEach (layer) =>
+      possible_position(layer)
+
+
 
   # Initialize the display to show a few nodes.
   update: (source) =>
@@ -33,14 +86,14 @@ class window.MyTree
 
     # Normalize for fixed-depth.
     nodes.forEach (d) ->
-      d.y = d.depth * 180
+      d.y = d.depth * 100
       return
-
 
     # Update the nodes…
     node = @vis.selectAll("g.node").data(nodes, (d) =>
       d.id or (d.id = ++@i)
     )
+    @adjustTree(nodes)
 
     # Enter any new nodes at the parent's previous position.
     nodeEnter = node.enter().append("svg:g").attr("class", "node").attr("transform", (d) ->
