@@ -21,7 +21,7 @@ randomTree = (depth) ->
   index = 0
   createTree = (depthLeft) =>
     head =
-      name: index++
+      name: "Test String " + index++
       children: null
     unless depthLeft == 1
       if randomInt(2) >= 1

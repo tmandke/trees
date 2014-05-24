@@ -11,15 +11,16 @@ class window.MyTree
     h = 800 - m[0] - m[2]
     @i = 0
 
-    @tree = d3.layout.tree().size([
-      w
-      h
-    ])
+    @tree = d3.layout.tree().nodeSize([
+      100, 20
+    ]).separation(->
+      1.1
+    )
     @diagonal = (d, i) ->
       return "M" + d.source.x + "," + d.source.y + "V" + (d.source.y + (d.target.y - d.source.y)/2) + "H" + d.target.x + "V" + d.target.y
 
-    @vis = d3.select("svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + m[3] + "," + m[0] + ")")
-    @root.x0 = h / 2
+    @vis = d3.select("svg").attr("width", w + m[1] + m[3]).attr("height", h + m[0] + m[2]).append("svg:g").attr("transform", "translate(" + (w/2 + m[1]) + "," + m[0] + ")")
+    @root.x0 = 0
     @root.y0 = 0
     @update(@root)
 
@@ -49,13 +50,11 @@ class window.MyTree
       @update d
       return
     )
-    nodeEnter.append("svg:circle").attr("r", 1e-6).style "fill", (d) ->
+    nodeEnter.append("svg:rect").attr("width", 1).attr("height", 1).style "fill", (d) ->
       (if d._children then "lightsteelblue" else "#fff")
 
-    nodeEnter.append("svg:text").attr("y", (d) ->
-      (if d.children or d._children then -10 else 10)
-    ).attr("dy", ".35em").attr("text-anchor", (d) ->
-      (if d.children or d._children then "end" else "start")
+    nodeEnter.append("svg:text").attr("y", 10).attr("dy", ".35em").attr("text-anchor", (d) ->
+      "middle"
     ).text((d) ->
       d.name
     ).style "fill-opacity", 1e-6
@@ -64,7 +63,7 @@ class window.MyTree
     nodeUpdate = node.transition().duration(duration).attr("transform", (d) ->
       "translate(" + d.x + "," + d.y + ")"
     )
-    nodeUpdate.select("circle").attr("r", 4.5).style "fill", (d) ->
+    nodeUpdate.select("rect").attr("width", 100).attr("height", 20).attr("x", -50).style "fill", (d) ->
       (if d._children then "lightsteelblue" else "#fff")
 
     nodeUpdate.select("text").style "fill-opacity", 1
@@ -73,7 +72,7 @@ class window.MyTree
     nodeExit = node.exit().transition().duration(duration).attr("transform", (d) ->
       "translate(" + source.x + "," + source.y + ")"
     ).remove()
-    nodeExit.select("circle").attr "r", 1e-6
+    nodeExit.select("rect").attr("width", 1).attr("height", 1)
     nodeExit.select("text").style "fill-opacity", 1e-6
 
     # Update the links…
