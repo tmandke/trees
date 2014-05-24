@@ -39,5 +39,7 @@ $ ->
   $("#apply").on("click", () ->
     window.current_tree = jQuery.parseJSON( $("#treejson").val())
     window.treee = new MyTree(current_tree)
+    return
   )
   window.treee = new MyTree(current_tree)
+  return

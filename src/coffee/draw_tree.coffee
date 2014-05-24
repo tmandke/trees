@@ -44,6 +44,7 @@ class window.MyTree
             minX += @nodeWidth + @nodeSeparation
           else
             minX = node.x + @nodeWidth + @nodeSeparation
+          return
 
       adjust_max = =>
         maxX = @w/2 - @nodeWidth
@@ -53,6 +54,7 @@ class window.MyTree
             maxX -= (@nodeWidth + @nodeSeparation)
           else
             maxX = node.x - (@nodeWidth + @nodeSeparation)
+          return
 
       nodes = nodes.sort (a,b) ->
         a.x - b.x
